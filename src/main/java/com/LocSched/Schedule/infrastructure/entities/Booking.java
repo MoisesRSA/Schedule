@@ -22,8 +22,8 @@ import lombok.Setter;
 @NoArgsConstructor
 @Getter
 @Setter
-@Table(name = "schedules")
-public class Schedule {
+@Table(name = "bookings")
+public class Booking {
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

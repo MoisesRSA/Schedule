@@ -1,6 +1,6 @@
 package com.LocSched.Schedule.DTO;
 
-public record ScheduleDTO(
+public record BookingDTO(
     Long id,
     String startTime,
     String endTime,
