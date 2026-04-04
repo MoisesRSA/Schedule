@@ -16,7 +16,7 @@ import com.LocSched.Schedule.infrastructure.services.BookingService;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
 
 @RestController
-@RequestMapping("/schedule")
+@RequestMapping("/booking")
 public class BookingController {
     
     private final BookingService service;

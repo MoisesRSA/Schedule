@@ -12,6 +12,6 @@ import com.LocSched.Schedule.infrastructure.entities.Booking;
 @Repository
 public interface BookingRepository extends JpaRepository<Booking, Long> {
     
-    @Query("SELECT COUNT(s) > 0 FROM Schedule s WHERE s.startTime <= :endTime AND s.endTime >= :startTime AND s.location = :location")
+    @Query("SELECT COUNT(b) > 0 FROM Booking b WHERE b.startTime <= :endTime AND b.endTime >= :startTime AND b.location = :location")
     public boolean checkBooking(@Param("startTime") LocalDateTime startTime,@Param("endTime") LocalDateTime endTime, @Param ("location") String location);
 }
