@@ -13,8 +13,10 @@ import org.springframework.web.bind.annotation.RestController;
 import com.LocSched.Schedule.infrastructure.entities.Booking;
 import com.LocSched.Schedule.infrastructure.services.BookingService;
 
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
-
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import com.LocSched.Schedule.infrastructure.entities.Employee;
 @RestController
 @RequestMapping("/booking")
 public class BookingController {
@@ -26,9 +28,12 @@ public class BookingController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<Booking> createSchedule(@RequestBody Booking booking) {
+    public ResponseEntity<Booking> createSchedule(
+            @RequestBody Booking booking,
+            @AuthenticationPrincipal Employee currentEmployee) {
 
         try {
+            booking.setEmployee(currentEmployee);
             return service.createSchedule(booking);
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();
@@ -41,17 +46,17 @@ public class BookingController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Booking> findById(Long id) {
+    public ResponseEntity<Booking> findById(@PathVariable Long id) {
         return service.findById(id);
     }
 
     @PutMapping("/update/{id}")
-    public ResponseEntity<Booking> updateSchedule(Long id, Booking bookingDetails) {
+    public ResponseEntity<Booking> updateSchedule(@PathVariable Long id, @RequestBody Booking bookingDetails) {
         return service.updateSchedule(id, bookingDetails);
     }
 
     @DeleteMapping("/delete/{id}")
-    public String deleteSchedule(Long id) {
+    public String deleteSchedule(@PathVariable Long id) {
         return service.deleteBooking(id);
     }
 }
