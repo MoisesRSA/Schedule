@@ -19,7 +19,7 @@ import com.LocSched.Schedule.infrastructure.services.EmployeeService;
 
 @RestController
 @RequestMapping("/employee")
-@CrossOrigin(origins = "http://localhost:5173")
+@CrossOrigin(origins = {"http://localhost:5173", "https://booking-front-pi.vercel.app"})
 public class EmployeeController {
     
     private final EmployeeService employeeService;

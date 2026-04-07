@@ -12,7 +12,7 @@ import com.LocSched.Schedule.infrastructure.services.AuthService;
 
 @RestController
 @RequestMapping("/auth")
-@CrossOrigin(origins = "http://localhost:5173")
+@CrossOrigin(origins = {"http://localhost:5173", "https://booking-front-pi.vercel.app"})
 public class AuthController {
     
     private final AuthService authService;
