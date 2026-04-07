@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
+import com.LocSched.Schedule.DTO.EmployeeDTO;
 import com.LocSched.Schedule.infrastructure.entities.Employee;
 import com.LocSched.Schedule.infrastructure.repository.EmployeeRepository;
 
@@ -14,6 +15,8 @@ import jakarta.transaction.Transactional;
 public class EmployeeService {
 
     private final EmployeeRepository employeeRepository;
+
+    private EmployeeDTO employeeDTO;
 
     public EmployeeService (EmployeeRepository employeeRepository) {
         this.employeeRepository = employeeRepository;
