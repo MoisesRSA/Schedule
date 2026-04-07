@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Google Login Test</title>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; max-width: 800px; margin: auto; }
+        textarea { width: 100%; height: 120px; padding: 10px; font-family: monospace; }
+        button { padding: 10px 15px; background: #007bff; color: wite; border: none; cursor: pointer; border-radius: 4px;}
+        button:hover { background: #0056b3; }
+        pre { background: #f4f4f4; padding: 10px; border-radius: 4px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h2>Testador de Entrar com o Google</h2>
+    <p>Clique no botão do Google abaixo para fazer o login. Isso irá gerar o token real do Google e depois enviá-lo automaticamente para a sua API Spring Boot!</p>
+    
+    <!-- Configuração do Botão do Google -->
+    <div id="g_id_onload"
+         data-client_id="353884964012-218ult3b6k0sa29k53tghhuuqqbvmil3.apps.googleusercontent.com"
+         data-callback="handleCredentialResponse">
+    </div>
+    <div class="g_id_signin" data-type="standard" data-size="large" data-theme="outline" data-text="sign_in_with" data-shape="rectangular" data-logo_alignment="left"></div>
+
+    <hr style="margin-top:20px;">
+    
+    <h3>1. Token do Google (Copiável para Postman):</h3>
+    <textarea id="tokenDisplay" style="display: none;" readonly></textarea>
+    <button id="copyBtn" style="display: none;" onclick="copyToken()">Copiar Token</button>
+
+    <h3>2. Resposta do seu Backend (Spring Boot):</h3>
+    <pre id="backendResponse">Esperando ação...</pre>
+
+    <script>
+        function handleCredentialResponse(response) {
+            const googleToken = response.credential;
+            
+            // Exibir token na tela
+            document.getElementById("tokenDisplay").style.display = "block";
+            document.getElementById("copyBtn").style.display = "block";
+            document.getElementById("tokenDisplay").value = googleToken;
+
+            // Enviar para a sua api Spring Boot
+            document.getElementById("backendResponse").innerText = "Enviando Token para (http://localhost:8081/auth/login) aguarde...";
+
+            fetch('/auth/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ googleToken: googleToken })
+            })
+            .then(res => res.text().then(text => ({ status: res.status, text: text })))
+            .then(data => {
+                let responseText = "Status HTTP: " + data.status + "\n\n";
+                // Verificar se a resposta tem corpo
+                if (!data.text) {
+                    responseText += "(Sem dados na resposta)";
+                } else if (data.text.startsWith('{')) {
+                    responseText += JSON.stringify(JSON.parse(data.text), null, 2);
+                } else {
+                    responseText += data.text;
+                }
+                document.getElementById("backendResponse").innerText = responseText;
+            })
+            .catch(err => {
+                document.getElementById("backendResponse").innerText = "Erro na requisição: " + err;
+            });
+        }
+
+        function copyToken() {
+            var copyText = document.getElementById("tokenDisplay");
+            copyText.select();
+            document.execCommand("copy");
+            alert("Token copiado! Agora você pode abrir o Postman e colar no JSON.");
+        }
+    </script>
+</body>
+</html>

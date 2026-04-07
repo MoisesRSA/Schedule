@@ -53,6 +53,8 @@ public class AuthService {
                 return tokenService.generateToken(employee);
             }
         } catch (Exception e) {
+            System.err.println("❌ Google token verification failed:");
+            e.printStackTrace();
             throw new RuntimeException("Error during Google login", e);
         }
 

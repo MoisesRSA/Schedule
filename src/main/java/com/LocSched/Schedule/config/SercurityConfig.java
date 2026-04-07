@@ -22,7 +22,10 @@ public class SercurityConfig {
         return http
         .csrf(csrf -> csrf.disable())
         .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-        .authorizeHttpRequests(auth -> auth.requestMatchers("/auth/login").permitAll().anyRequest().authenticated())
+        .authorizeHttpRequests(auth -> auth
+            .requestMatchers("/auth/login", "/swagger-ui/**", "/v3/api-docs/**", "/test-login.html").permitAll()
+            .anyRequest().authenticated()
+        )
         .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)
         .build();
         
