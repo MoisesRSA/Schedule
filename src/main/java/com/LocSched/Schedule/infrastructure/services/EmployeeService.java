@@ -16,15 +16,21 @@ public class EmployeeService {
 
     private final EmployeeRepository employeeRepository;
 
-    private EmployeeDTO employeeDTO;
-
-    public EmployeeService (EmployeeRepository employeeRepository) {
+    public EmployeeService(EmployeeRepository employeeRepository) {
         this.employeeRepository = employeeRepository;
     }
 
-    @Transactional  
-    public Employee createEmployee(Employee employee) {
+    public EmployeeDTO toDTO(Employee employee) {
+        return new EmployeeDTO(
+            employee.getId(),
+            employee.getName(),
+            employee.getPhotoUrl(),
+            employee.getStatus()
+        );
+    }
 
+    @Transactional
+    public EmployeeDTO createEmployee(Employee employee) {
         try {
             if (employee.getEmail() == null || employee.getEmail().isEmpty()) {
                 throw new RuntimeException("Email is required");
@@ -32,7 +38,7 @@ public class EmployeeService {
             if (employeeRepository.findByEmail(employee.getEmail()).isPresent()) {
                 throw new RuntimeException("Employee already exists");
             }
-            return employeeRepository.save(employee);
+            return toDTO(employeeRepository.save(employee));
         } catch (Exception e) {
             throw new RuntimeException("Error creating employee", e);
         }
@@ -42,21 +48,24 @@ public class EmployeeService {
         return employeeRepository.findByEmail(email);
     }
 
-    public List<Employee> findAll() {
-        return employeeRepository.findAll();
+    public List<EmployeeDTO> findAll() {
+        return employeeRepository.findAll()
+                .stream()
+                .map(this::toDTO)
+                .toList();
     }
 
-    public Optional<Employee> findById(Long id) {
-        return employeeRepository.findById(id);
+    public Optional<EmployeeDTO> findById(Long id) {
+        return employeeRepository.findById(id).map(this::toDTO);
     }
 
     @Transactional
-    public Employee updateEmployee(Long id, Employee employeeDetails) {
+    public EmployeeDTO updateEmployee(Long id, Employee employeeDetails) {
         return employeeRepository.findById(id).map(existingEmployee -> {
             existingEmployee.setName(employeeDetails.getName());
-            existingEmployee.setEmail(employeeDetails.getEmail());
-            existingEmployee.setPassword(employeeDetails.getPassword());
-            return employeeRepository.save(existingEmployee);
+            existingEmployee.setPhotoUrl(employeeDetails.getPhotoUrl());
+            existingEmployee.setStatus(employeeDetails.getStatus());
+            return toDTO(employeeRepository.save(existingEmployee));
         }).orElseThrow(() -> new RuntimeException("Employee not found"));
     }
 
@@ -65,5 +74,5 @@ public class EmployeeService {
         employeeRepository.deleteById(id);
         return "Employee deleted successfully";
     }
-    
+
 }

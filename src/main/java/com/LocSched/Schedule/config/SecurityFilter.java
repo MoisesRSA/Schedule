@@ -35,11 +35,9 @@ public class SecurityFilter extends OncePerRequestFilter {
         var token = this.recoverToken(request);
         if (token != null) {
             var email = tokenService.validateToken(token);
-            System.out.println("TESTE DEBUG - Email found: " + email);
 
             if (email != null) {
                 Employee employee = employeeRepository.findByEmail(email).orElse(null);
-                System.out.println("TESTE DEBUG - Employee found: " + (employee != null));
 
                 if (employee != null) {
                     var authentication = new UsernamePasswordAuthenticationToken(employee, null,
@@ -47,8 +45,6 @@ public class SecurityFilter extends OncePerRequestFilter {
                     SecurityContextHolder.getContext().setAuthentication(authentication);
                 }
             }
-        } else {
-            System.out.println("TEST DEBUG - Token not found in header!");
         }
 
         filterChain.doFilter(request, response);

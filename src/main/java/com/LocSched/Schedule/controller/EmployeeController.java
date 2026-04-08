@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.LocSched.Schedule.DTO.EmployeeDTO;
 import com.LocSched.Schedule.infrastructure.entities.Employee;
 import com.LocSched.Schedule.infrastructure.services.EmployeeService;
 
@@ -21,7 +22,7 @@ import com.LocSched.Schedule.infrastructure.services.EmployeeService;
 @RequestMapping("/employee")
 @CrossOrigin(origins = {"http://localhost:5173", "https://booking-front-pi.vercel.app"})
 public class EmployeeController {
-    
+
     private final EmployeeService employeeService;
 
     public EmployeeController(EmployeeService employeeService) {
@@ -29,22 +30,24 @@ public class EmployeeController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<Employee> createEmployee(@RequestBody Employee employee) {
+    public ResponseEntity<EmployeeDTO> createEmployee(@RequestBody Employee employee) {
         return ResponseEntity.ok(employeeService.createEmployee(employee));
     }
 
     @GetMapping("/all")
-    public ResponseEntity<List<Employee>> findAll() {
+    public ResponseEntity<List<EmployeeDTO>> findAll() {
         return ResponseEntity.ok(employeeService.findAll());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Optional<Employee>> findById(@PathVariable Long id) {
-        return ResponseEntity.ok(employeeService.findById(id));
+    public ResponseEntity<EmployeeDTO> findById(@PathVariable Long id) {
+        Optional<EmployeeDTO> dto = employeeService.findById(id);
+        return dto.map(ResponseEntity::ok)
+                  .orElse(ResponseEntity.notFound().build());
     }
 
     @PutMapping("/update/{id}")
-    public ResponseEntity<Employee> updateEmployee(@PathVariable Long id, @RequestBody Employee employeeDetails) {
+    public ResponseEntity<EmployeeDTO> updateEmployee(@PathVariable Long id, @RequestBody Employee employeeDetails) {
         return ResponseEntity.ok(employeeService.updateEmployee(id, employeeDetails));
     }
 

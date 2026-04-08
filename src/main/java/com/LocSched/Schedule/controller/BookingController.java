@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.LocSched.Schedule.DTO.BookingDTO;
 import com.LocSched.Schedule.infrastructure.entities.Booking;
 import com.LocSched.Schedule.infrastructure.services.BookingService;
 
@@ -23,7 +24,7 @@ import com.LocSched.Schedule.infrastructure.entities.Employee;
 @RestController
 @RequestMapping("/booking")
 public class BookingController {
-    
+
     private final BookingService service;
 
     public BookingController(BookingService service) {
@@ -31,10 +32,9 @@ public class BookingController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<Booking> createSchedule(
+    public ResponseEntity<BookingDTO> createSchedule(
             @RequestBody Booking booking,
             @AuthenticationPrincipal Employee currentEmployee) {
-
         try {
             booking.setEmployee(currentEmployee);
             return service.createSchedule(booking);
@@ -44,18 +44,18 @@ public class BookingController {
     }
 
     @GetMapping("/all")
-    public ResponseEntity<List<Booking>> getAllSchedules(
+    public ResponseEntity<List<BookingDTO>> getAllSchedules(
             @AuthenticationPrincipal Employee currentEmployee) {
         return service.getAllSchedules(currentEmployee);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Booking> findById(@PathVariable Long id) {
+    public ResponseEntity<BookingDTO> findById(@PathVariable Long id) {
         return service.findById(id);
     }
 
     @PutMapping("/update/{id}")
-    public ResponseEntity<Booking> updateSchedule(@PathVariable Long id, @RequestBody Booking bookingDetails) {
+    public ResponseEntity<BookingDTO> updateSchedule(@PathVariable Long id, @RequestBody Booking bookingDetails) {
         return service.updateSchedule(id, bookingDetails);
     }
 

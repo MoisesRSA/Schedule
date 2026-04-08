@@ -1,9 +1,8 @@
 package com.LocSched.Schedule.DTO;
 
-public record EmployeeDTO (
+public record EmployeeDTO(
     Long id,
     String name,
-    String email,
-    String photorl,
+    String photoUrl,
     String status
 ) {}
