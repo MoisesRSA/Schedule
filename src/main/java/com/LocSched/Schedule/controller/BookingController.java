@@ -44,8 +44,9 @@ public class BookingController {
     }
 
     @GetMapping("/all")
-    public ResponseEntity<List<Booking>> getAllSchedules() {
-        return service.getAllSchedules();
+    public ResponseEntity<List<Booking>> getAllSchedules(
+            @AuthenticationPrincipal Employee currentEmployee) {
+        return service.getAllSchedules(currentEmployee);
     }
 
     @GetMapping("/{id}")

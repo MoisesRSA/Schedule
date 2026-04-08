@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.LocSched.Schedule.infrastructure.entities.Booking;
+import com.LocSched.Schedule.infrastructure.entities.Employee;
 import com.LocSched.Schedule.infrastructure.repository.BookingRepository;
 
 import jakarta.transaction.Transactional;
@@ -29,8 +30,8 @@ public class BookingService {
         }
     }
 
-    public ResponseEntity<List<Booking>> getAllSchedules() {
-        return ResponseEntity.ok(repository.findAll());
+    public ResponseEntity<List<Booking>> getAllSchedules(Employee employee) {
+        return ResponseEntity.ok(repository.findByEmployee(employee));
     }
 
     public ResponseEntity<Booking> findById(Long id) {
