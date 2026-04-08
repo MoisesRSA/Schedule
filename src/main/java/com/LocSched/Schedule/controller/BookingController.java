@@ -32,14 +32,14 @@ public class BookingController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<BookingDTO> createSchedule(
+    public ResponseEntity<?> createSchedule(
             @RequestBody Booking booking,
             @AuthenticationPrincipal Employee currentEmployee) {
         try {
             booking.setEmployee(currentEmployee);
             return service.createSchedule(booking);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().build();
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
@@ -47,6 +47,11 @@ public class BookingController {
     public ResponseEntity<List<BookingDTO>> getAllSchedules(
             @AuthenticationPrincipal Employee currentEmployee) {
         return service.getAllSchedules(currentEmployee);
+    }
+
+    @GetMapping("/timeline")
+    public ResponseEntity<List<BookingDTO>> getTimelineSchedules() {
+        return service.getAllForTimeline();
     }
 
     @GetMapping("/{id}")

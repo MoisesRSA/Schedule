@@ -53,6 +53,12 @@ public class BookingService {
         );
     }
 
+    public ResponseEntity<List<BookingDTO>> getAllForTimeline() {
+        return ResponseEntity.ok(
+            repository.findAll().stream().map(this::toDTO).toList()
+        );
+    }
+
     public ResponseEntity<BookingDTO> findById(Long id) {
         return ResponseEntity.ok(
             toDTO(repository.findById(id)
