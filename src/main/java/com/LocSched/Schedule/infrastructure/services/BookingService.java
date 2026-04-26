@@ -16,9 +16,11 @@ import jakarta.transaction.Transactional;
 public class BookingService {
 
     private final BookingRepository repository;
+    private final SseService sseService;
 
-    public BookingService(BookingRepository repository) {
+    public BookingService(BookingRepository repository, SseService sseService) {
         this.repository = repository;
+        this.sseService = sseService;
     }
 
     public BookingDTO toDTO(Booking booking) {
@@ -40,7 +42,9 @@ public class BookingService {
             throw new RuntimeException("Booking already exists");
         } else {
             booking.setStatus(Booking.ScheduleStatus.SCHEDULED);
-            return ResponseEntity.ok(toDTO(repository.save(booking)));
+            Booking savedBooking = repository.save(booking);
+            sseService.notifyUpdate();
+            return ResponseEntity.ok(toDTO(savedBooking));
         }
     }
 
@@ -74,13 +78,16 @@ public class BookingService {
             existingBooking.setLocation(bookingDetails.getLocation());
             existingBooking.setStatus(bookingDetails.getStatus());
             existingBooking.setEmployee(bookingDetails.getEmployee());
-            return ResponseEntity.ok(toDTO(repository.save(existingBooking)));
+            Booking savedBooking = repository.save(existingBooking);
+            sseService.notifyUpdate();
+            return ResponseEntity.ok(toDTO(savedBooking));
         }).orElseThrow(() -> new RuntimeException("Booking not found"));
     }
 
     @Transactional
     public String deleteBooking(Long id) {
         repository.deleteById(id);
+        sseService.notifyUpdate();
         return "Booking deleted successfully";
     }
 

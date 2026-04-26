@@ -29,6 +29,7 @@ import com.LocSched.Schedule.config.SecurityFilter;
 import com.LocSched.Schedule.infrastructure.entities.Booking;
 import com.LocSched.Schedule.infrastructure.entities.Employee;
 import com.LocSched.Schedule.infrastructure.services.BookingService;
+import com.LocSched.Schedule.infrastructure.services.SseService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
@@ -39,6 +40,9 @@ class BookingControllerTest {
 
     @Mock
     private BookingService bookingService;
+
+    @Mock
+    private SseService sseService;
 
     @InjectMocks
     private BookingController bookingController;

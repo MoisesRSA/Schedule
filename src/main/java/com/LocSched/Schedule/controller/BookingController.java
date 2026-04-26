@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.LocSched.Schedule.DTO.BookingDTO;
 import com.LocSched.Schedule.infrastructure.entities.Booking;
 import com.LocSched.Schedule.infrastructure.services.BookingService;
+import com.LocSched.Schedule.infrastructure.services.SseService;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -26,9 +28,11 @@ import com.LocSched.Schedule.infrastructure.entities.Employee;
 public class BookingController {
 
     private final BookingService service;
+    private final SseService sseService;
 
-    public BookingController(BookingService service) {
+    public BookingController(BookingService service, SseService sseService) {
         this.service = service;
+        this.sseService = sseService;
     }
 
     @PostMapping("/create")
@@ -41,6 +45,11 @@ public class BookingController {
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
+    }
+
+    @GetMapping("/stream")
+    public SseEmitter stream() {
+        return sseService.createEmitter();
     }
 
     @GetMapping("/all")
