@@ -26,8 +26,8 @@ public class SercurityConfig {
         .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .authorizeHttpRequests(auth -> auth
             .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+            .requestMatchers("/api/public/health").permitAll()
             .requestMatchers("/auth/login", "/test-login.html").permitAll()
-            .requestMatchers("/api/health").permitAll()
             .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").authenticated()
             .anyRequest().authenticated()
         )
