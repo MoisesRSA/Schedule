@@ -9,5 +9,6 @@ public record BookingDTO(
     String location,
     String status,
     Long employeeId,
-    String employeeName
+    String employeeName,
+    String description
 ) {}

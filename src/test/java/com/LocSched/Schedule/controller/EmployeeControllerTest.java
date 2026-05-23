@@ -49,7 +49,7 @@ public class EmployeeControllerTest {
         mockEmployee.setName("Jane Doe");
         mockEmployee.setEmail("jane@example.com");
 
-        mockEmployeeDTO = new EmployeeDTO(1L, "Jane Doe", null, "ACTIVE");
+        mockEmployeeDTO = new EmployeeDTO(1L, "Jane Doe", null, "ACTIVE", "USER");
     }
 
     @Test

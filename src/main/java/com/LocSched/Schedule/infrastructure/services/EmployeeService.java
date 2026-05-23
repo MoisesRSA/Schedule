@@ -25,7 +25,8 @@ public class EmployeeService {
             employee.getId(),
             employee.getName(),
             employee.getPhotoUrl(),
-            employee.getStatus()
+            employee.getStatus(),
+            employee.getRole()
         );
     }
 
@@ -65,6 +66,9 @@ public class EmployeeService {
             existingEmployee.setName(employeeDetails.getName());
             existingEmployee.setPhotoUrl(employeeDetails.getPhotoUrl());
             existingEmployee.setStatus(employeeDetails.getStatus());
+            if (employeeDetails.getRole() != null) {
+                existingEmployee.setRole(employeeDetails.getRole());
+            }
             return toDTO(employeeRepository.save(existingEmployee));
         }).orElseThrow(() -> new RuntimeException("Employee not found"));
     }

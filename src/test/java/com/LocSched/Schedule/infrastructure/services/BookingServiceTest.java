@@ -42,6 +42,7 @@ class BookingServiceTest {
         employee = new Employee();
         employee.setId(1L);
         employee.setName("John Doe");
+        employee.setRole("USER");
 
         booking = new Booking();
         booking.setId(1L);
@@ -50,6 +51,7 @@ class BookingServiceTest {
         booking.setLocation("Room A");
         booking.setEmployee(employee);
         booking.setStatus(Booking.ScheduleStatus.SCHEDULED);
+        booking.setDescription("Sample description");
     }
 
     @Test
@@ -106,7 +108,7 @@ class BookingServiceTest {
     void findById_Success() {
         when(bookingRepository.findById(1L)).thenReturn(Optional.of(booking));
 
-        ResponseEntity<BookingDTO> response = bookingService.findById(1L);
+        ResponseEntity<BookingDTO> response = bookingService.findById(1L, employee);
 
         assertNotNull(response);
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -118,7 +120,7 @@ class BookingServiceTest {
         when(bookingRepository.findById(1L)).thenReturn(Optional.empty());
 
         RuntimeException exception = assertThrows(RuntimeException.class, () -> {
-            bookingService.findById(1L);
+            bookingService.findById(1L, employee);
         });
 
         assertEquals("Booking not found", exception.getMessage());
@@ -127,13 +129,14 @@ class BookingServiceTest {
     @Test
     void updateSchedule_Success() {
         when(bookingRepository.findById(1L)).thenReturn(Optional.of(booking));
+        when(bookingRepository.checkBookingForUpdate(any(), any(), any(), any())).thenReturn(false);
         when(bookingRepository.save(any(Booking.class))).thenReturn(booking);
 
         Booking newDetails = new Booking();
         newDetails.setLocation("Room B");
         newDetails.setStatus(Booking.ScheduleStatus.IN_PROGRESS);
 
-        ResponseEntity<BookingDTO> response = bookingService.updateSchedule(1L, newDetails);
+        ResponseEntity<BookingDTO> response = bookingService.updateSchedule(1L, newDetails, employee);
 
         assertNotNull(response);
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -142,11 +145,12 @@ class BookingServiceTest {
 
     @Test
     void deleteBooking_Success() {
-        doNothing().when(bookingRepository).deleteById(1L);
+        when(bookingRepository.findById(1L)).thenReturn(Optional.of(booking));
+        doNothing().when(bookingRepository).delete(booking);
 
-        String result = bookingService.deleteBooking(1L);
+        String result = bookingService.deleteBooking(1L, employee);
 
         assertEquals("Booking deleted successfully", result);
-        verify(bookingRepository, times(1)).deleteById(1L);
+        verify(bookingRepository, times(1)).delete(booking);
     }
 }

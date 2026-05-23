@@ -42,6 +42,9 @@ public class Booking {
     @Column(nullable = false)
     private String location;
 
+    @Column(columnDefinition = "TEXT")
+    private String description;
+
     @Enumerated(EnumType.STRING)
     private ScheduleStatus status;
 

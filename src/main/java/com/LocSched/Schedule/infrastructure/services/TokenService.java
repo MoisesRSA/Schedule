@@ -28,6 +28,7 @@ public class TokenService {
             return JWT.create()
             .withIssuer("LocSched")
             .withSubject(employee.getEmail())
+            .withClaim("role", employee.getRole() != null ? employee.getRole() : "USER")
             .withExpiresAt(getExpirationDate())
             .sign(algorithm);
 

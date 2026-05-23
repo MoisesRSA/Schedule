@@ -20,12 +20,17 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.bind.support.WebDataBinderFactory;
+import org.springframework.web.context.request.NativeWebRequest;
+import org.springframework.web.method.support.HandlerMethodArgumentResolver;
+import org.springframework.web.method.support.ModelAndViewContainer;
+import org.springframework.core.MethodParameter;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.LocSched.Schedule.DTO.BookingDTO;
-import com.LocSched.Schedule.config.SecurityFilter;
 import com.LocSched.Schedule.infrastructure.entities.Booking;
 import com.LocSched.Schedule.infrastructure.entities.Employee;
 import com.LocSched.Schedule.infrastructure.services.BookingService;
@@ -50,10 +55,31 @@ class BookingControllerTest {
     private ObjectMapper objectMapper;
     private BookingDTO bookingDTO;
     private Booking booking;
+    private Employee mockEmployee;
 
     @BeforeEach
     void setUp() {
-        mockMvc = MockMvcBuilders.standaloneSetup(bookingController).build();
+        mockEmployee = new Employee();
+        mockEmployee.setId(1L);
+        mockEmployee.setName("John Doe");
+        mockEmployee.setEmail("john.doe@example.com");
+        mockEmployee.setRole("USER");
+
+        mockMvc = MockMvcBuilders.standaloneSetup(bookingController)
+                .setCustomArgumentResolvers(new HandlerMethodArgumentResolver() {
+                    @Override
+                    public boolean supportsParameter(MethodParameter parameter) {
+                        return parameter.hasParameterAnnotation(AuthenticationPrincipal.class);
+                    }
+
+                    @Override
+                    public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer,
+                            NativeWebRequest webRequest, WebDataBinderFactory binderFactory) {
+                        return mockEmployee;
+                    }
+                })
+                .build();
+
         objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
 
@@ -64,13 +90,15 @@ class BookingControllerTest {
             "Room A",
             "SCHEDULED",
             1L,
-            "John Doe"
+            "John Doe",
+            "Sample description"
         );
 
         booking = new Booking();
         booking.setLocation("Room A");
         booking.setStartTime(bookingDTO.startTime());
         booking.setEndTime(bookingDTO.endTime());
+        booking.setDescription("Sample description");
     }
 
     @Test
@@ -116,7 +144,7 @@ class BookingControllerTest {
 
     @Test
     void findById_Success() throws Exception {
-        when(bookingService.findById(1L)).thenReturn(ResponseEntity.ok(bookingDTO));
+        when(bookingService.findById(eq(1L), any())).thenReturn(ResponseEntity.ok(bookingDTO));
 
         mockMvc.perform(get("/booking/1"))
                 .andExpect(status().isOk())
@@ -125,7 +153,7 @@ class BookingControllerTest {
 
     @Test
     void updateSchedule_Success() throws Exception {
-        when(bookingService.updateSchedule(eq(1L), any(Booking.class))).thenReturn(ResponseEntity.ok(bookingDTO));
+        when(bookingService.updateSchedule(eq(1L), any(Booking.class), any())).thenReturn(ResponseEntity.ok(bookingDTO));
 
         mockMvc.perform(put("/booking/update/1")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -136,7 +164,7 @@ class BookingControllerTest {
 
     @Test
     void deleteSchedule_Success() throws Exception {
-        when(bookingService.deleteBooking(1L)).thenReturn("Booking deleted successfully");
+        when(bookingService.deleteBooking(eq(1L), any())).thenReturn("Booking deleted successfully");
 
         mockMvc.perform(delete("/booking/delete/1"))
                 .andExpect(status().isOk())

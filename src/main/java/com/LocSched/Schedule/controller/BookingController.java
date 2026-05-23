@@ -64,17 +64,34 @@ public class BookingController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<BookingDTO> findById(@PathVariable Long id) {
-        return service.findById(id);
+    public ResponseEntity<?> findById(@PathVariable Long id, @AuthenticationPrincipal Employee currentEmployee) {
+        try {
+            return service.findById(id, currentEmployee);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
     @PutMapping("/update/{id}")
-    public ResponseEntity<BookingDTO> updateSchedule(@PathVariable Long id, @RequestBody Booking bookingDetails) {
-        return service.updateSchedule(id, bookingDetails);
+    public ResponseEntity<?> updateSchedule(
+            @PathVariable Long id, 
+            @RequestBody Booking bookingDetails,
+            @AuthenticationPrincipal Employee currentEmployee) {
+        try {
+            return service.updateSchedule(id, bookingDetails, currentEmployee);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
     @DeleteMapping("/delete/{id}")
-    public String deleteSchedule(@PathVariable Long id) {
-        return service.deleteBooking(id);
+    public ResponseEntity<String> deleteSchedule(
+            @PathVariable Long id,
+            @AuthenticationPrincipal Employee currentEmployee) {
+        try {
+            return ResponseEntity.ok(service.deleteBooking(id, currentEmployee));
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 }

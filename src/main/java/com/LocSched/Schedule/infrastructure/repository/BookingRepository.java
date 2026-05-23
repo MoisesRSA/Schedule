@@ -18,5 +18,8 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     @Query("SELECT COUNT(b) > 0 FROM Booking b WHERE b.startTime <= :endTime AND b.endTime >= :startTime AND b.location = :location")
     public boolean checkBooking(@Param("startTime") LocalDateTime startTime,@Param("endTime") LocalDateTime endTime, @Param ("location") String location);
 
+    @Query("SELECT COUNT(b) > 0 FROM Booking b WHERE b.id != :id AND b.startTime <= :endTime AND b.endTime >= :startTime AND b.location = :location")
+    public boolean checkBookingForUpdate(@Param("id") Long id, @Param("startTime") LocalDateTime startTime, @Param("endTime") LocalDateTime endTime, @Param("location") String location);
+
     List<Booking> findByEmployee(Employee employee);
 }

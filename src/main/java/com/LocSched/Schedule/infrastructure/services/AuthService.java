@@ -19,6 +19,9 @@ public class AuthService {
     @Value("${google.client.id}")
     private String googleClientId;
 
+    @Value("${api.admin.emails:ribeiromoises166@gmail.com}")
+    private String adminEmailsStr;
+
     private final EmployeeRepository employeeRepository;
     private final TokenService tokenService;
 
@@ -42,11 +45,28 @@ public class AuthService {
                 String name = (String) payload.get("name");
                 
 
+                String emails = adminEmailsStr != null ? adminEmailsStr : "ribeiromoises166@gmail.com";
+                boolean isAdminEmail = java.util.Arrays.stream(emails.split(","))
+                    .map(String::trim)
+                    .anyMatch(email::equalsIgnoreCase);
+
                 Employee employee = employeeRepository.findByEmail(email)
+                .map(existingEmployee -> {
+                    if (isAdminEmail && !"ADMIN".equals(existingEmployee.getRole())) {
+                        existingEmployee.setRole("ADMIN");
+                        return employeeRepository.save(existingEmployee);
+                    }
+                    return existingEmployee;
+                })
                 .orElseGet(() -> {
                     Employee newEmployee = new Employee();
                     newEmployee.setEmail(email);
                     newEmployee.setName(name);
+                    if (isAdminEmail) {
+                        newEmployee.setRole("ADMIN");
+                    } else {
+                        newEmployee.setRole("USER");
+                    }
                     return employeeRepository.save(newEmployee);
                 });
 

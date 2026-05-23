@@ -24,4 +24,5 @@ public class Employee {
     private String password;
     private String photoUrl;
     private String status;
+    private String role = "USER";
 }

@@ -4,5 +4,6 @@ public record EmployeeDTO(
     Long id,
     String name,
     String photoUrl,
-    String status
+    String status,
+    String role
 ) {}

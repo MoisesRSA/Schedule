@@ -32,7 +32,8 @@ public class BookingService {
             booking.getLocation(),
             booking.getStatus() != null ? booking.getStatus().name() : null,
             emp != null ? emp.getId() : null,
-            emp != null ? emp.getName() : null
+            emp != null ? emp.getName() : null,
+            booking.getDescription()
         );
     }
 
@@ -49,9 +50,14 @@ public class BookingService {
     }
 
     public ResponseEntity<List<BookingDTO>> getAllSchedules(Employee employee) {
+        List<Booking> bookings;
+        if ("ADMIN".equals(employee.getRole())) {
+            bookings = repository.findAll();
+        } else {
+            bookings = repository.findByEmployee(employee);
+        }
         return ResponseEntity.ok(
-            repository.findByEmployee(employee)
-                      .stream()
+            bookings.stream()
                       .map(this::toDTO)
                       .toList()
         );
@@ -63,21 +69,36 @@ public class BookingService {
         );
     }
 
-    public ResponseEntity<BookingDTO> findById(Long id) {
-        return ResponseEntity.ok(
-            toDTO(repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Booking not found")))
-        );
+    public ResponseEntity<BookingDTO> findById(Long id, Employee currentEmployee) {
+        Booking booking = repository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Booking not found"));
+        if (!"ADMIN".equals(currentEmployee.getRole()) && !booking.getEmployee().getId().equals(currentEmployee.getId())) {
+            throw new RuntimeException("Not authorized to view this booking");
+        }
+        return ResponseEntity.ok(toDTO(booking));
     }
 
     @Transactional
-    public ResponseEntity<BookingDTO> updateSchedule(Long id, Booking bookingDetails) {
+    public ResponseEntity<BookingDTO> updateSchedule(Long id, Booking bookingDetails, Employee currentEmployee) {
         return repository.findById(id).map(existingBooking -> {
+            if (!"ADMIN".equals(currentEmployee.getRole()) && !existingBooking.getEmployee().getId().equals(currentEmployee.getId())) {
+                throw new RuntimeException("Not authorized to update this booking");
+            }
+            if (repository.checkBookingForUpdate(id, bookingDetails.getStartTime(), bookingDetails.getEndTime(), bookingDetails.getLocation())) {
+                throw new RuntimeException("Booking already exists for this time and location");
+            }
             existingBooking.setStartTime(bookingDetails.getStartTime());
             existingBooking.setEndTime(bookingDetails.getEndTime());
             existingBooking.setLocation(bookingDetails.getLocation());
-            existingBooking.setStatus(bookingDetails.getStatus());
-            existingBooking.setEmployee(bookingDetails.getEmployee());
+            if (bookingDetails.getStatus() != null) {
+                existingBooking.setStatus(bookingDetails.getStatus());
+            }
+            if (bookingDetails.getDescription() != null) {
+                existingBooking.setDescription(bookingDetails.getDescription());
+            }
+            if ("ADMIN".equals(currentEmployee.getRole()) && bookingDetails.getEmployee() != null) {
+                existingBooking.setEmployee(bookingDetails.getEmployee());
+            }
             Booking savedBooking = repository.save(existingBooking);
             sseService.notifyUpdate();
             return ResponseEntity.ok(toDTO(savedBooking));
@@ -85,8 +106,13 @@ public class BookingService {
     }
 
     @Transactional
-    public String deleteBooking(Long id) {
-        repository.deleteById(id);
+    public String deleteBooking(Long id, Employee currentEmployee) {
+        Booking booking = repository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Booking not found"));
+        if (!"ADMIN".equals(currentEmployee.getRole()) && !booking.getEmployee().getId().equals(currentEmployee.getId())) {
+            throw new RuntimeException("Not authorized to delete this booking");
+        }
+        repository.delete(booking);
         sseService.notifyUpdate();
         return "Booking deleted successfully";
     }
